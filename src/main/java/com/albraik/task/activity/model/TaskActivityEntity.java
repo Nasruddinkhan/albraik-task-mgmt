@@ -82,9 +82,11 @@ public class TaskActivityEntity {
 	private Boolean isDeleted;
 
 	@OneToOne(mappedBy = "taskActivity")
+	@NotFound(action = NotFoundAction.IGNORE)
 	private TaskActivityEntity taskReplyActivity;
 
 	@OneToMany(mappedBy = "taskActivity")
+	@NotFound(action = NotFoundAction.IGNORE)
 	private List<TaskAttachmentEntity> attachmentList;
 
 	public Long getId() {

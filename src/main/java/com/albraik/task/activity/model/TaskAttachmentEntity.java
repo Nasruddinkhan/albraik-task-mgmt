@@ -11,12 +11,15 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
+import org.hibernate.annotations.NotFound;
+import org.hibernate.annotations.NotFoundAction;
+
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Entity
-@Table(name = "task_activity")
+@Table(name = "task_attachment")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class TaskAttachmentEntity {
 
@@ -30,6 +33,7 @@ public class TaskAttachmentEntity {
 
 	@ManyToOne
 	@JoinColumn(name = "task_id")
+	@NotFound(action = NotFoundAction.IGNORE)
 	@JsonProperty("task_activity")
 	private TaskActivityEntity taskActivity;
 
@@ -40,7 +44,7 @@ public class TaskAttachmentEntity {
 	private Long size;
 
 	@JsonProperty("s3_key")
-	private String s3Key;
+	private String s3_Key;
 
 	@JsonProperty("url")
 	private String url;
@@ -94,12 +98,14 @@ public class TaskAttachmentEntity {
 		this.size = size;
 	}
 
-	public String getS3Key() {
-		return s3Key;
+	@JsonProperty("s3_key")
+	public String getS3_Key() {
+		return s3_Key;
 	}
 
-	public void setS3Key(String s3Key) {
-		this.s3Key = s3Key;
+	@JsonProperty("s3_key")
+	public void setS3_Key(String s3_Key) {
+		this.s3_Key = s3_Key;
 	}
 
 	public String getUrl() {
