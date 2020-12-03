@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.Objects;
 
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -54,12 +56,15 @@ public class TaskActivityEntity {
 	@JsonProperty("due_date")
 	private Long dueDate;
 
+	@Enumerated(EnumType.STRING)
 	@JsonProperty("priority")
 	private TaskPriority priority;
 
+	@Enumerated(EnumType.STRING)
 	@JsonProperty("status")
 	private TaskStatus status;
 
+	@Enumerated(EnumType.STRING)
 	@JsonProperty("type")
 	private TaskType type;
 
