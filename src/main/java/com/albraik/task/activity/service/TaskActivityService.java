@@ -2,6 +2,7 @@ package com.albraik.task.activity.service;
 
 import java.util.List;
 
+import com.albraik.task.activity.dto.TaskActivityDTO;
 import com.albraik.task.activity.dto.TaskActivityRequestDTO;
 import com.albraik.task.activity.dto.TaskReplyRequestDTO;
 import com.albraik.task.activity.model.TaskActivityEntity;
@@ -9,14 +10,16 @@ import com.albraik.task.user.model.UserEntity;
 
 public interface TaskActivityService {
 
-	List<TaskActivityEntity> getAllTaskActivity();
+	List<TaskActivityDTO> getAllTaskActivity();
 
-	List<TaskActivityEntity> getMyTaskActivity(UserEntity userEntity);
+	List<TaskActivityDTO> getMyTaskActivity(UserEntity userEntity);
+	
+	List<TaskActivityDTO> getProjectTaskActivity(UserEntity userEntity, Integer projectId);
 
-	TaskActivityEntity createTaskActivity(UserEntity userEntity, TaskActivityRequestDTO taskActivityRequest);
+	TaskActivityDTO createTaskActivity(UserEntity userEntity, TaskActivityRequestDTO taskActivityRequest);
 
-	TaskActivityEntity createTaskReply(UserEntity userEntity, Long taskId, TaskReplyRequestDTO taskReplyRequestDto);
+	TaskActivityDTO createTaskReply(UserEntity userEntity, Long taskId, TaskReplyRequestDTO taskReplyRequestDto);
 
-	TaskActivityEntity updateTaskReply(UserEntity userEntity, Long taskId, Long replyId,
+	TaskActivityDTO updateTaskReply(UserEntity userEntity, Long taskId, Long replyId,
 			TaskReplyRequestDTO taskReplyRequestDto);
 }

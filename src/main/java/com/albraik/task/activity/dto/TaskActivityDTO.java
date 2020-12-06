@@ -197,6 +197,22 @@ public class TaskActivityDTO {
 		this.attachmentList = attachmentList;
 	}
 
+	public Long getTaskId() {
+		return taskId;
+	}
+
+	public void setTaskId(Long taskId) {
+		this.taskId = taskId;
+	}
+
+	public TaskActivityDTO getTaskReply() {
+		return taskReply;
+	}
+
+	public void setTaskReply(TaskActivityDTO taskReply) {
+		this.taskReply = taskReply;
+	}
+
 	@Override
 	public String toString() {
 		ObjectMapper Obj = new ObjectMapper();

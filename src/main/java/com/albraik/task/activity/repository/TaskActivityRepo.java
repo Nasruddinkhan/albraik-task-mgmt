@@ -18,4 +18,6 @@ public interface TaskActivityRepo extends JpaRepository<TaskActivityEntity, Long
 	List<TaskActivityEntity> findByAssigneeIdOrAssignerId(@Param("userId") Integer userId,
 			@Param("type") TaskType type);
 
+	List<TaskActivityEntity> findByProjectIdAndTypeAndIsDeletedFalseOrderByUpdatedTimeDesc(Integer projectId, TaskType type);
+
 }

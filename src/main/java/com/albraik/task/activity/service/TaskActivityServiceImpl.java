@@ -35,13 +35,13 @@ public class TaskActivityServiceImpl implements TaskActivityService {
 	private Long REPLY_EDIT_DURATION;
 
 	@Override
-	public List<TaskActivityEntity> getAllTaskActivity() {
+	public List<TaskActivityDTO> getAllTaskActivity() {
 		List<TaskActivityEntity> taskActivityList = taskActivityRepo.findAll();
-		return taskActivityList;
+		return getTaskActivityDtoFromTaskActivityEntity(taskActivityList);
 	}
 
 	@Override
-	public TaskActivityEntity createTaskActivity(UserEntity userEntity, TaskActivityRequestDTO taskActivityRequest) {
+	public TaskActivityDTO createTaskActivity(UserEntity userEntity, TaskActivityRequestDTO taskActivityRequest) {
 		TaskActivityEntity taskActivityEntity = ObjectUtilMapper.map(taskActivityRequest, TaskActivityEntity.class);
 		taskActivityEntity.setAssignerId(userEntity.getId());
 		taskActivityEntity.setAssignerName(userEntity.getFirstName());
@@ -51,12 +51,14 @@ public class TaskActivityServiceImpl implements TaskActivityService {
 		taskActivityEntity.setCreatedTime(currentTime);
 		taskActivityEntity.setUpdatedTime(currentTime);
 		taskActivityEntity.setIsDeleted(false);
+		if (taskActivityEntity.getIsHidden() == null)
+			taskActivityEntity.setIsHidden(false);
 		taskActivityEntity = taskActivityRepo.save(taskActivityEntity);
-		return taskActivityEntity;
+		return getTaskActivityDtoFromTaskActivityEntity(taskActivityEntity);
 	}
 
 	@Override
-	public TaskActivityEntity createTaskReply(UserEntity userEntity, Long taskId,
+	public TaskActivityDTO createTaskReply(UserEntity userEntity, Long taskId,
 			TaskReplyRequestDTO taskReplyRequestDto) {
 		TaskActivityEntity taskActivity = taskActivityRepo.findById(taskId)
 				.orElseThrow(() -> new ResourceNotFoundException("No such task found"));
@@ -88,11 +90,11 @@ public class TaskActivityServiceImpl implements TaskActivityService {
 
 		taskReply = taskActivityRepo.save(taskReply);
 		taskActivityRepo.save(taskActivity);
-		return taskReply;
+		return getTaskActivityDtoFromTaskActivityEntity(taskReply);
 	}
 
 	@Override
-	public TaskActivityEntity updateTaskReply(UserEntity userEntity, Long taskId, Long replyId,
+	public TaskActivityDTO updateTaskReply(UserEntity userEntity, Long taskId, Long replyId,
 			TaskReplyRequestDTO taskReplyRequestDto) {
 		TaskActivityEntity taskActivity = taskActivityRepo.findById(taskId)
 				.orElseThrow(() -> new ResourceNotFoundException("No such task found"));
@@ -126,22 +128,57 @@ public class TaskActivityServiceImpl implements TaskActivityService {
 
 		replyActivity = taskActivityRepo.save(replyActivity);
 		taskActivityRepo.save(taskActivity);
-		return replyActivity;
+		return getTaskActivityDtoFromTaskActivityEntity(replyActivity);
 	}
 
 	@Override
-	public List<TaskActivityEntity> getMyTaskActivity(UserEntity userEntity) {
-		return taskActivityRepo.findByAssigneeIdOrAssignerId(userEntity.getId(), TaskType.TASK);
+	public List<TaskActivityDTO> getMyTaskActivity(UserEntity userEntity) {
+		List<TaskActivityEntity> taskActivityList = taskActivityRepo.findByAssigneeIdOrAssignerId(userEntity.getId(),
+				TaskType.TASK);
+		return getTaskActivityDtoFromTaskActivityEntity(taskActivityList);
 	}
-	
-	/*
-	 * public List<TaskActivityDTO>
-	 * getTaskActivityDtoFromTaskActivityEntity(List<TaskActivityEntity>
-	 * taskActivityList) { List<TaskActivityDTO> output = new ArrayList<>();
-	 * if(taskActivityList == null) return output;
-	 * taskActivityList.forEach(taskActivity -> { TaskActivityDTO taskDTO =
-	 * ObjectUtilMapper.map(taskActivity, TaskActivityDTO.class); }); return output;
-	 * }
-	 */
+
+	@Override
+	public List<TaskActivityDTO> getProjectTaskActivity(UserEntity userEntity, Integer projectId) {
+		List<TaskActivityEntity> taskActivityList = taskActivityRepo
+				.findByProjectIdAndTypeAndIsDeletedFalseOrderByUpdatedTimeDesc(projectId, TaskType.TASK);
+		List<TaskActivityEntity> filteredTaskList = filterTaskList(userEntity, taskActivityList);
+		return getTaskActivityDtoFromTaskActivityEntity(filteredTaskList);
+	}
+
+	public List<TaskActivityEntity> filterTaskList(UserEntity userEntity, List<TaskActivityEntity> taskList) {
+		List<TaskActivityEntity> output = new ArrayList<>();
+		taskList.forEach(taskActivityEntity -> {
+			if (taskActivityEntity.getIsHidden()) {
+				Integer assignerId = taskActivityEntity.getAssignerId();
+				Integer assigneeId = taskActivityEntity.getAssigneeId();
+				if (assigneeId.equals(userEntity.getId()) || assignerId.equals(userEntity.getId()))
+					output.add(taskActivityEntity);
+			} else
+				output.add(taskActivityEntity);
+		});
+		return output;
+	}
+
+	public List<TaskActivityDTO> getTaskActivityDtoFromTaskActivityEntity(List<TaskActivityEntity> taskActivityList) {
+		List<TaskActivityDTO> output = new ArrayList<>();
+		if (taskActivityList == null)
+			return output;
+		taskActivityList.forEach(taskActivity -> {
+			output.add(getTaskActivityDtoFromTaskActivityEntity(taskActivity));
+		});
+		return output;
+	}
+
+	public TaskActivityDTO getTaskActivityDtoFromTaskActivityEntity(TaskActivityEntity taskActivity) {
+		TaskActivityDTO taskDTO = ObjectUtilMapper.map(taskActivity, TaskActivityDTO.class);
+		if (taskActivity.getTaskActivity() != null)
+			taskDTO.setTaskId(taskActivity.getTaskActivity().getId());
+		if (taskActivity.getTaskReplyActivity() != null)
+			taskDTO.setTaskReply(getTaskActivityDtoFromTaskActivityEntity(taskActivity.getTaskReplyActivity()));
+		if (taskActivity.getAttachmentList() != null)
+			taskDTO.setAttachmentList(taskActivity.getAttachmentList());
+		return taskDTO;
+	}
 
 }
