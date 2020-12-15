@@ -18,6 +18,19 @@ public interface TaskActivityRepo extends JpaRepository<TaskActivityEntity, Long
 	List<TaskActivityEntity> findByAssigneeIdOrAssignerId(@Param("userId") Integer userId,
 			@Param("type") TaskType type);
 
-	List<TaskActivityEntity> findByProjectIdAndTypeAndIsDeletedFalseOrderByUpdatedTimeDesc(Integer projectId, TaskType type);
+	List<TaskActivityEntity> findByProjectIdAndTypeAndIsDeletedFalseOrderByUpdatedTimeDesc(Integer projectId,
+			TaskType type);
+
+	@Query("SELECT t " + "FROM TaskActivityEntity t " + "WHERE t.type = 'TASK' "
+			+ "AND (t.status = 'COMPLETED' OR t.status = 'LATE_COMPLETED') " + "AND t.isDeleted = false")
+	List<TaskActivityEntity> getUpdatableTaskList();
+
+	@Query("SELECT t " + "FROM TaskActivityEntity t " + "WHERE t.assigneeId = :userId "
+			+ "AND t.type != 'FINISHED' AND t.isDeleted = false ORDER BY t.dueDate")
+	List<TaskActivityEntity> getTaskAssignedToMe(@Param("userId") Integer userId);
+
+	@Query("SELECT t " + "FROM TaskActivityEntity t " + "WHERE t.assignerId = :userId "
+			+ "AND t.isDeleted = false ORDER BY t.updatedTime")
+	List<TaskActivityEntity> getTaskAssignedByMe(@Param("userId") Integer userId);
 
 }

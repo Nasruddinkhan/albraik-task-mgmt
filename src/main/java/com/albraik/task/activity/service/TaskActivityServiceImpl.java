@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -12,17 +13,15 @@ import com.albraik.task.activity.dto.TaskActivityDTO;
 import com.albraik.task.activity.dto.TaskActivityRequestDTO;
 import com.albraik.task.activity.dto.TaskReplyRequestDTO;
 import com.albraik.task.activity.model.TaskActivityEntity;
-import com.albraik.task.activity.model.TaskPriority;
 import com.albraik.task.activity.model.TaskStatus;
 import com.albraik.task.activity.model.TaskType;
 import com.albraik.task.activity.repository.TaskActivityRepo;
+import com.albraik.task.cache.ObjectCache;
 import com.albraik.task.exception.ResourceGoneException;
 import com.albraik.task.exception.ResourceNotFoundException;
 import com.albraik.task.exception.UnauthorizedAccessException;
 import com.albraik.task.user.model.UserEntity;
-import com.albraik.task.user.service.UserService;
 import com.albraik.task.util.ObjectUtilMapper;
-import com.fasterxml.jackson.annotation.JsonProperty;
 
 @Service
 @Transactional
@@ -30,6 +29,10 @@ public class TaskActivityServiceImpl implements TaskActivityService {
 
 	@Autowired
 	private TaskActivityRepo taskActivityRepo;
+
+	@Autowired
+	@Qualifier("updatableTaskCache")
+	private ObjectCache<Long, TaskActivityEntity> updatableTaskCache;
 
 	@Value("${task.reply.edit.durationInMillis}")
 	private Long REPLY_EDIT_DURATION;
@@ -88,8 +91,11 @@ public class TaskActivityServiceImpl implements TaskActivityService {
 		taskActivity.setUpdatedTime(currentTime);
 		taskReply.setTaskActivity(taskActivity);
 
+		// save to db
 		taskReply = taskActivityRepo.save(taskReply);
 		taskActivityRepo.save(taskActivity);
+		// save to cache
+		updatableTaskCache.put(taskActivity.getId(), taskActivity);
 		return getTaskActivityDtoFromTaskActivityEntity(taskReply);
 	}
 
@@ -106,9 +112,9 @@ public class TaskActivityServiceImpl implements TaskActivityService {
 			throw new UnauthorizedAccessException("You are not authorized to update reply of this task");
 		if (!replyActivity.getAssignerId().equals(userEntity.getId()))
 			throw new UnauthorizedAccessException("You are not authorized to update this reply");
-		Long taskCreationTime = taskActivity.getCreatedTime();
+		Long replyCreationTime = replyActivity.getCreatedTime();
 		Long currentTime = System.currentTimeMillis();
-		Long timeDiff = currentTime - taskCreationTime;
+		Long timeDiff = currentTime - replyCreationTime;
 		if (timeDiff > REPLY_EDIT_DURATION)
 			throw new ResourceGoneException("Task update time expired");
 
@@ -126,8 +132,11 @@ public class TaskActivityServiceImpl implements TaskActivityService {
 		}
 		replyActivity.setTaskActivity(taskActivity);
 
+		// save to db
 		replyActivity = taskActivityRepo.save(replyActivity);
 		taskActivityRepo.save(taskActivity);
+		// save to cache
+		updatableTaskCache.put(taskActivity.getId(), taskActivity);
 		return getTaskActivityDtoFromTaskActivityEntity(replyActivity);
 	}
 
@@ -158,6 +167,18 @@ public class TaskActivityServiceImpl implements TaskActivityService {
 				output.add(taskActivityEntity);
 		});
 		return output;
+	}
+
+	@Override
+	public List<TaskActivityDTO> getTaskAssignedByMe(UserEntity userEntity) {
+		List<TaskActivityEntity> taskActivityList = taskActivityRepo.getTaskAssignedByMe(userEntity.getId());
+		return getTaskActivityDtoFromTaskActivityEntity(taskActivityList);
+	}
+
+	@Override
+	public List<TaskActivityDTO> getTaskAssignedToMe(UserEntity userEntity) {
+		List<TaskActivityEntity> taskActivityList = taskActivityRepo.getTaskAssignedToMe(userEntity.getId());
+		return getTaskActivityDtoFromTaskActivityEntity(taskActivityList);
 	}
 
 	public List<TaskActivityDTO> getTaskActivityDtoFromTaskActivityEntity(List<TaskActivityEntity> taskActivityList) {

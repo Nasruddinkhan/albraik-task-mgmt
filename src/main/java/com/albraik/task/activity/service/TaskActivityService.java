@@ -13,7 +13,7 @@ public interface TaskActivityService {
 	List<TaskActivityDTO> getAllTaskActivity();
 
 	List<TaskActivityDTO> getMyTaskActivity(UserEntity userEntity);
-	
+
 	List<TaskActivityDTO> getProjectTaskActivity(UserEntity userEntity, Integer projectId);
 
 	TaskActivityDTO createTaskActivity(UserEntity userEntity, TaskActivityRequestDTO taskActivityRequest);
@@ -22,4 +22,8 @@ public interface TaskActivityService {
 
 	TaskActivityDTO updateTaskReply(UserEntity userEntity, Long taskId, Long replyId,
 			TaskReplyRequestDTO taskReplyRequestDto);
+
+	List<TaskActivityDTO> getTaskAssignedToMe(UserEntity userEntity);
+
+	List<TaskActivityDTO> getTaskAssignedByMe(UserEntity userEntity);
 }

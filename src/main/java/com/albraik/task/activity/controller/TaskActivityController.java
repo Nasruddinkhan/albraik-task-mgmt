@@ -80,4 +80,24 @@ public class TaskActivityController {
 		return ResponseEntity.ok(taskActivityList);
 	}
 
+	@GetMapping("/project/task/assigned-to-me")
+	public ResponseEntity<List<TaskActivityDTO>> getTaskAssignedToMe(
+			@RequestHeader("authorization") String authorization) {
+		UserEntity userEntity = userService.getUserDetails(authorization);
+		List<TaskActivityDTO> taskActivityList = taskActivityService.getTaskAssignedToMe(userEntity);
+		if (taskActivityList.isEmpty())
+			return new ResponseEntity<>(taskActivityList, HttpStatus.NO_CONTENT);
+		return ResponseEntity.ok(taskActivityList);
+	}
+
+	@GetMapping("/project/task/assigned-by-me")
+	public ResponseEntity<List<TaskActivityDTO>> getTaskAssignedByMe(
+			@RequestHeader("authorization") String authorization) {
+		UserEntity userEntity = userService.getUserDetails(authorization);
+		List<TaskActivityDTO> taskActivityList = taskActivityService.getTaskAssignedByMe(userEntity);
+		if (taskActivityList.isEmpty())
+			return new ResponseEntity<>(taskActivityList, HttpStatus.NO_CONTENT);
+		return ResponseEntity.ok(taskActivityList);
+	}
+
 }
