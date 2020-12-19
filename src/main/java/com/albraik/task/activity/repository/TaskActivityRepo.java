@@ -26,11 +26,11 @@ public interface TaskActivityRepo extends JpaRepository<TaskActivityEntity, Long
 	List<TaskActivityEntity> getUpdatableTaskList();
 
 	@Query("SELECT t " + "FROM TaskActivityEntity t " + "WHERE t.assigneeId = :userId "
-			+ "AND t.type != 'FINISHED' AND t.isDeleted = false ORDER BY t.dueDate")
+			+ "AND t.type = 'TASK' AND t.status != 'FINISHED' AND t.isDeleted = false ORDER BY t.dueDate")
 	List<TaskActivityEntity> getTaskAssignedToMe(@Param("userId") Integer userId);
 
 	@Query("SELECT t " + "FROM TaskActivityEntity t " + "WHERE t.assignerId = :userId "
-			+ "AND t.isDeleted = false ORDER BY t.updatedTime")
+			+ "AND t.type = 'TASK' AND t.isDeleted = false ORDER BY t.updatedTime")
 	List<TaskActivityEntity> getTaskAssignedByMe(@Param("userId") Integer userId);
 
 }
