@@ -93,6 +93,7 @@ public class TaskActivityServiceImpl implements TaskActivityService {
 
 		// save to db
 		taskReply = taskActivityRepo.save(taskReply);
+		taskActivity.setTaskReplyActivity(taskReply);
 		taskActivityRepo.save(taskActivity);
 		// save to cache
 		updatableTaskCache.put(taskActivity.getId(), taskActivity);
@@ -134,6 +135,7 @@ public class TaskActivityServiceImpl implements TaskActivityService {
 
 		// save to db
 		replyActivity = taskActivityRepo.save(replyActivity);
+		taskActivity.setTaskReplyActivity(replyActivity);
 		taskActivityRepo.save(taskActivity);
 		// save to cache
 		updatableTaskCache.put(taskActivity.getId(), taskActivity);
