@@ -1,0 +1,43 @@
+allow:
+  header: '*'
+  orgins: '*'
+auth:
+  header: Authorization
+eureka:
+  client:
+    fetch-registry: true
+    register-with-eureka: true
+    serviceUrl:
+      defaultZone: http://localhost:8761/eureka
+reg:
+  cor:
+    conf: /**
+secret:
+  key: dofzxhnbsdlzbpajp878ireujgldfkhg0#$%^&*shgh
+server:
+  port: 8084
+  servlet:
+    application-display-name: task-mgmt
+    contextPath: /task-mgmt
+spring:
+  application:
+    name: task-mgmt
+  datasource:
+    password: root
+    url: jdbc:mysql://localhost:3306/albraik_task_mgmt?useSSL=false
+    username: root
+    driver-class-name: com.mysql.jdbc.Driver
+    
+  jpa:
+    hibernate:
+      ddl-auto: none
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQL5Dialect
+    show-sql: true
+task:
+  reply:
+    edit:
+      durationInMillis: 1800000
+token:
+  key: 'myToken '
