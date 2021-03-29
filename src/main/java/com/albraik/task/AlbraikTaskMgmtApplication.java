@@ -8,7 +8,6 @@ import org.springframework.boot.context.event.ApplicationStartedEvent;
 import org.springframework.cloud.netflix.eureka.EnableEurekaClient;
 import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.context.ApplicationListener;
-import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
 import com.albraik.task.activity.model.TaskActivityEntity;

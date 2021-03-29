@@ -1,5 +1,6 @@
 package com.albraik.task.security;
 
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
@@ -52,4 +53,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         source.registerCorsConfiguration(env.getProperty("reg.cor.conf"), config);
         return new CorsFilter(source);
     }
+
 }
+
+
